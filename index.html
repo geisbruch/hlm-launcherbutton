@@ -1,0 +1,62 @@
+<html>
+  <script src="/socket.io/socket.io.js"></script>
+  <body style="background: black;">
+    <canvas id="q"></canvas>
+  </body>
+  <script>
+    var line = 0;
+    var lineStep = 12;
+    var s = window.screen;
+    var width = q.width = s.width;
+    var height = q.height = s.height;
+    var letters;
+    var context = q.getContext('2d');
+
+    function writeText(text,size) {
+      if(line > height) {
+        line = 0;
+        start();
+      }
+      size = size? size : lineStep;
+      context.fillStyle='rgba(0,0,0,.01)';
+      context.fillRect(0,0,width,height);
+      context.fillStyle='#0F0';
+      context.font=size+"px Lucida Console, Courier, Monotype";
+      line+=size+5;
+      context.fillText(text,0,line);
+    }   
+ 
+    function app() {
+      var socket = io.connect(); // TIP: .connect with no args does auto-discovery
+      socket.on('connect', function () { // TIP: you can avoid listening on `connect` and listen on events directly too!
+        socket.on("text", function(data) {
+          writeText(data.line, data.size);
+        });
+      });
+    }
+    var draw = function () {
+      q.getContext('2d').fillStyle='rgba(0,0,0,.07)';
+      q.getContext('2d').fillRect(0,0,width,height);
+      q.getContext('2d').fillStyle='#0F0';
+      letters.map(function(y_pos, index){
+        text = String.fromCharCode(3e4+Math.random()*23);
+        x_pos = index * 10;
+        q.getContext('2d').fillText(text, x_pos, y_pos);
+        letters[index] = (y_pos > 758 + Math.random() * 1e4) ? 0 : y_pos + 10;
+      });
+    };
+    var moves = 82;
+    function start() {
+      letters = Array(256).join(1).split('');
+      for(var i = 0; i<moves; i++) {
+        draw();
+      }
+    }
+    start();
+    setTimeout(app, moves*6);
+  </script>
+
+  <script>
+      </script>
+
+</html>
